@@ -1,77 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
 #include <arpa/inet.h>
 
-#define BUFFER_SIZE 256
+#define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 8080
+#define BUFFER_SIZE 1024
 
-int main(int argc, char **argv)
+int main()
 {
-  if (argc != 5)
-  {
-    printf("Uso: %s <IP_SERVIDOR> <PORTA_SERVIDOR> <POWMIN> <POWMAX>\n", argv[0]);
-    return 1;
-  }
-
-  char *server_ip = argv[1];
-  int server_port = atoi(argv[2]);
-  int powmin = atoi(argv[3]);
-  int powmax = atoi(argv[4]);
-
   int client_socket;
-  struct sockaddr_in server_addr;
+  struct sockaddr_in server_address;
+  char buffer[BUFFER_SIZE] = {0};
 
-  client_socket = socket(AF_INET, SOCK_STREAM, 0);
-  if (client_socket < 0)
+  // Criando o socket cliente
+  if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-    perror("Erro ao criar o socket do cliente");
-    return 1;
+    perror("Falha ao criar o socket cliente");
+    exit(EXIT_FAILURE);
   }
 
-  memset(&server_addr, 0, sizeof(server_addr));
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_addr.s_addr = inet_addr(server_ip);
-  server_addr.sin_port = htons(server_port);
+  server_address.sin_family = AF_INET;
+  server_address.sin_port = htons(SERVER_PORT);
 
-  if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+  // Convertendo o endereço IP para o formato da rede
+  if (inet_pton(AF_INET, SERVER_IP, &server_address.sin_addr) <= 0)
   {
-    perror("Erro ao conectar ao servidor");
-    close(client_socket);
-    return 1;
+    perror("Endereço inválido ou não suportado");
+    exit(EXIT_FAILURE);
   }
 
-  printf("Conexão estabelecida com o servidor %s:%d\n", server_ip, server_port);
-
-  if (send(client_socket, &powmin, sizeof(int), 0) < 0)
+  // Conectando ao servidor
+  if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
   {
-    perror("Erro ao enviar powmin para o servidor");
-    close(client_socket);
-    return 1;
+    perror("Falha na conexão");
+    exit(EXIT_FAILURE);
   }
 
-  if (send(client_socket, &powmax, sizeof(int), 0) < 0)
+  printf("Conectado ao servidor em %s:%d\n", SERVER_IP, SERVER_PORT);
+
+  while (1)
   {
-    perror("Erro ao enviar powmax para o servidor");
-    close(client_socket);
-    return 1;
+    int num1, num2;
+
+    printf("Digite dois números inteiros separados por espaço: ");
+    scanf("%d %d", &num1, &num2);
+
+    // Enviar os números para o servidor
+    snprintf(buffer, sizeof(buffer), "%d %d", num1, num2);
+    send(client_socket, buffer, strlen(buffer), 0);
+
+    // Limpar o buffer para a resposta
+    memset(buffer, 0, sizeof(buffer));
   }
 
-  if (recv(client_socket, &powmin, sizeof(int), 0) < 0)
-  {
-    perror("Erro ao receber powmin do servidor");
-    close(client_socket);
-    return 1;
-  }
-
-  if (recv(client_socket, &powmax, sizeof(int), 0) < 0)
-  {
-    perror("Erro ao receber powmax do servidor");
-    close(client_socket);
-    return 1;
-  }
-
-  printf("Valores recebidos do servidor: powmin=%d, powmax=%d\n", powmin, powmax);
   close(client_socket);
 
   return 0;
