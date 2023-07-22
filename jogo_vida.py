@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 import time
+import sys
 from pyspark import SparkContext
 
 def ind2d(i, j, tam):
@@ -44,10 +46,11 @@ def Correto(tabul, tam):
 
 if __name__ == "__main__":
     sc = SparkContext(appName="GameOfLife")
-
-    powmin = 2
-    powmax = 4
-
+    if len(sys.argv) < 3:
+      print("Falha nos argumentos")
+    powmin = int(sys.argv[1])
+    powmax = int(sys.argv[2])
+    print(f"Inteiros recebidos no Apache: {powmin} e {powmax}")
     for pow in range(powmin, powmax + 1):
         tam = 1 << pow
 
