@@ -1,0 +1,18 @@
+# Use a imagem base do sistema operacional que possui o compilador gcc instalado
+FROM gcc:latest
+
+# Copie o arquivo server.c para o container
+COPY server.c /app/server.c
+
+# Copie o arquivo openmp_mpi e jogo_vida.py (caso necessário) para o container
+COPY openmp_mpi /app/openmp_mpi
+COPY jogo_vida.py /app/jogo_vida.py
+
+# Defina o diretório de trabalho para /app
+WORKDIR /app
+
+# Compile o arquivo server.c para um executável chamado server
+RUN gcc -o server server.c -lpthread
+
+# Comando padrão a ser executado quando o container iniciar (neste caso, executará o servidor)
+CMD ["./server"]
