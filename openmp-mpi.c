@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <mpi.h>
+#include <curl/curl.h> // Inclua a biblioteca libcurl
 
 #define ind2d(i, j) (i) * (tam + 2) + j
 
@@ -22,7 +23,7 @@ void send_to_elasticsearch(int tam, double t1, double t2, double t3)
     CURLcode res;
 
     char url[1000];
-    snprintf(url, sizeof(url), "http://elasticsearch-service:9200/measurement/_doc");
+    snprintf(url, sizeof(url), "http://localhost:5601/measurement/_doc");
     // Substitua 'elasticsearch-service' pelo nome do serviço do Elasticsearch no Kubernetes
 
     struct curl_slist *headers = NULL;

@@ -7,7 +7,7 @@ import requests
 
 # Função para enviar os dados para o Elasticsearch
 def send_to_elasticsearch(tam, t1, t2, t3):
-    url = "http://elasticsearch-service:9200/measurement/_doc"  # Substitua 'elasticsearch-service' pelo nome do serviço do Elasticsearch no Kubernetes
+    url = "https://localhost:5601/measurement/_doc"  # Substitua 'elasticsearch-service' pelo nome do serviço do Elasticsearch no Kubernetes
     headers = {"Content-Type": "application/json"}
     data = {
         "tam": tam,
