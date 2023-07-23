@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import time
 import sys
+import requests
 from pyspark import SparkContext
+from elasticsearch import Elasticsearch
+import urllib3
 
 def ind2d(i, j, tam):
     return i * (tam + 2) + j
@@ -44,13 +47,33 @@ def Correto(tabul, tam):
            tabul[ind2d(tam, tam - 1, tam)] and \
            tabul[ind2d(tam, tam, tam)]
 
+def index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0):
+    doc = {
+      'tam': tam,
+      'init': t1 - t0,
+      'comp': t2 - t1,
+      'fim': t3 - t2,
+      'tot': t3 - t0
+    }
+    
+    res = es.index(index=index_name, document=doc)
+
+    if res["result"] == "created":
+        print("Resultados enviados com sucesso para o Elasticsearch.")
+    else:
+        print("Erro ao enviar os resultados para o Elasticsearch.")
+
 if __name__ == "__main__":
     sc = SparkContext(appName="GameOfLife")
     if len(sys.argv) < 3:
-      print("Falha nos argumentos")
+        print("Falha nos argumentos")
     powmin = int(sys.argv[1])
     powmax = int(sys.argv[2])
     print(f"Inteiros recebidos no Apache: {powmin} e {powmax}")
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    # es = Elasticsearch(["https://localhost:9200"], basic_auth=('elastic', 'Y6pK7W4r33F7R0rWd3B4ZZ9Z'), verify_certs=False)
+
     for pow in range(powmin, powmax + 1):
         tam = 1 << pow
 
@@ -83,11 +106,16 @@ if __name__ == "__main__":
             else:
                 print("**Nok, RESULTADO ERRADO**")
 
+        # t3 calculation moved here
         t3 = wall_time()
+
+        # Index data to Elasticsearch
+        index_name = "resultado-jogo-vida"  # Change this to a suitable index name
+        # index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0)
+
         print("----------------------RESULTADO---------------------------")
         print("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f" %
               (tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0))
         print("----------------------RESULTADO---------------------------\n\n")
-        
 
     sc.stop()
