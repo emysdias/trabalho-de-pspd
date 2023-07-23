@@ -3,7 +3,6 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <mpi.h>
-#include <curl/curl.h> // Inclua a biblioteca libcurl
 
 #define ind2d(i, j) (i) * (tam + 2) + j
 
@@ -13,45 +12,6 @@ double wall_time(void)
   struct timezone tz;
   gettimeofday(&tv, &tz);
   return (tv.tv_sec + tv.tv_usec / 1000000.0);
-}
-
-
-// Função para enviar os dados para o Elasticsearch usando libcurl
-void send_to_elasticsearch(int tam, double t1, double t2, double t3)
-{
-    CURL *curl;
-    CURLcode res;
-
-    char url[1000];
-    snprintf(url, sizeof(url), "http://localhost:5601/measurement/_doc");
-    // Substitua 'elasticsearch-service' pelo nome do serviço do Elasticsearch no Kubernetes
-
-    struct curl_slist *headers = NULL;
-    headers = curl_slist_append(headers, "Content-Type: application/json");
-
-    char json_data[1000];
-    snprintf(json_data, sizeof(json_data), "{\"tam\": %d, \"t1_t0\": %f, \"t2_t1\": %f, \"t3_t2\": %f, \"t3_t0\": %f}",
-             tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0);
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-
-    if (curl)
-    {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_data);
-
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK)
-        {
-            fprintf(stderr, "Erro ao enviar os dados para o Elasticsearch: %s\n", curl_easy_strerror(res));
-        }
-
-        curl_easy_cleanup(curl);
-    }
-
-    curl_global_cleanup();
 }
 
 void UmaVida(int *tabulIn, int *tabulOut, int tam)
@@ -166,9 +126,6 @@ int main(int argc, char **argv)
 
     printf("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f \n",
            tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0);
-
-    // Enviar os dados para o Elasticsearch
-    send_to_elasticsearch(tam, t1, t2, t3);
 
     free(tabulIn);
     free(tabulOut);

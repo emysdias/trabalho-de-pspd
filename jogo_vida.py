@@ -2,25 +2,6 @@
 import time
 import sys
 from pyspark import SparkContext
-import requests
-
-
-# Função para enviar os dados para o Elasticsearch
-def send_to_elasticsearch(tam, t1, t2, t3):
-    url = "https://localhost:5601/measurement/_doc"  # Substitua 'elasticsearch-service' pelo nome do serviço do Elasticsearch no Kubernetes
-    headers = {"Content-Type": "application/json"}
-    data = {
-        "tam": tam,
-        "t1_t0": t1 - t0,
-        "t2_t1": t2 - t1,
-        "t3_t2": t3 - t2,
-        "t3_t0": t3 - t0
-    }
-    response = requests.post(url, json=data, headers=headers)
-    if response.status_code == 201:
-        print("Dados enviados com sucesso para o Elasticsearch!")
-    else:
-        print("Erro ao enviar os dados para o Elasticsearch.")
 
 def ind2d(i, j, tam):
     return i * (tam + 2) + j
@@ -107,8 +88,6 @@ if __name__ == "__main__":
         print("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f" %
               (tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0))
         print("----------------------RESULTADO---------------------------\n\n")
-        # Enviar os dados para o Elasticsearch
-        send_to_elasticsearch(tam, t1, t2, t3)
         
 
     sc.stop()

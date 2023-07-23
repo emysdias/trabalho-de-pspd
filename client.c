@@ -4,8 +4,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-// #define SERVER_IP "127.0.0.1"
-#define SERVER_IP "server-service"
+#define SERVER_IP "127.0.0.1"
+// #define SERVER_IP "server-service"
 #define SERVER_PORT 8080
 #define BUFFER_SIZE 1024
 

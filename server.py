@@ -11,7 +11,7 @@ def call_openmp(valueArgs):
 
 def call_apache(valueArgs):
     print("Chamando código do Apache e Spark")
-    comando = f"python ./jogo_vida.py {valueArgs['powmin']} {valueArgs['powmax']}"
+    comando = f"python3 ./jogo_vida.py {valueArgs['powmin']} {valueArgs['powmax']}"
     subprocess.call(comando, shell=True)
 
 def handle_client(client_socket, address):
