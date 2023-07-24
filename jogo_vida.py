@@ -59,9 +59,9 @@ def index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0):
     res = es.index(index=index_name, document=doc)
 
     if res["result"] == "created":
-        print("Resultados enviados com sucesso para o Elasticsearch.")
+        print("Resultados enviados com sucesso para o Elasticsearch.\n\n")
     else:
-        print("Erro ao enviar os resultados para o Elasticsearch.")
+        print("Erro ao enviar os resultados para o Elasticsearch.\n\n")
 
 if __name__ == "__main__":
     sc = SparkContext(appName="GameOfLife")
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         print("Falha nos argumentos")
     powmin = int(sys.argv[1])
     powmax = int(sys.argv[2])
-    print(f"Inteiros recebidos no Apache: {powmin} e {powmax}")
+    print(f"\n\nInteiros recebidos no Apache: {powmin} e {powmax}\n")
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     es = Elasticsearch(["https://localhost:9200"], basic_auth=('elastic', 'Y6pK7W4r33F7R0rWd3B4ZZ9Z'), verify_certs=False)
@@ -83,16 +83,9 @@ if __name__ == "__main__":
 
         iterations = 2 * (tam - 3)
         for _ in range(iterations):
-            # Broadcast the current tabulIn to all workers
             broadcasted_tabulIn = sc.broadcast(tabulIn)
-
-            # Create an RDD for parallel computation
             rdd = sc.parallelize(range(1, tam + 1))
-
-            # Perform the computation in parallel using the UmaVida function
             rdd.foreach(lambda i: UmaVida((broadcasted_tabulIn.value, tabulOut, tam, i)))
-
-            # Swap tabulIn and tabulOut for the next iteration
             tabulIn, tabulOut = tabulOut, tabulIn
 
         t2 = wall_time()
@@ -106,16 +99,14 @@ if __name__ == "__main__":
             else:
                 print("**Nok, RESULTADO ERRADO**")
 
-        # t3 calculation moved here
         t3 = wall_time()
 
-        # Index data to Elasticsearch
-        index_name = "resultado-jogo-vida"  # Change this to a suitable index name
+        index_name = "resultado-jogo-vida"
         index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0)
 
         print("----------------------RESULTADO---------------------------")
         print("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f" %
               (tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0))
-        print("----------------------RESULTADO---------------------------\n\n")
+        print("\n\n")
 
     sc.stop()

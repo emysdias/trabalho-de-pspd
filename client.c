@@ -4,8 +4,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-// #define SERVER_IP "127.0.0.1"
-#define SERVER_IP "server-service"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8080
 #define BUFFER_SIZE 1024
 
@@ -15,7 +14,6 @@ int main()
   struct sockaddr_in server_address;
   char buffer[BUFFER_SIZE] = {0};
 
-  // Criando o socket cliente
   if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     perror("Falha ao criar o socket cliente");
@@ -25,14 +23,12 @@ int main()
   server_address.sin_family = AF_INET;
   server_address.sin_port = htons(SERVER_PORT);
 
-  // Convertendo o endereço IP para o formato da rede
   if (inet_pton(AF_INET, SERVER_IP, &server_address.sin_addr) <= 0)
   {
     perror("Endereço inválido ou não suportado");
     exit(EXIT_FAILURE);
   }
 
-  // Conectando ao servidor
   if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
   {
     perror("Falha na conexão");
@@ -48,11 +44,9 @@ int main()
     printf("Digite dois números inteiros separados por espaço: ");
     scanf("%d %d", &num1, &num2);
 
-    // Enviar os números para o servidor
     snprintf(buffer, sizeof(buffer), "%d %d", num1, num2);
     send(client_socket, buffer, strlen(buffer), 0);
 
-    // Limpar o buffer para a resposta
     memset(buffer, 0, sizeof(buffer));
   }
 

@@ -10,7 +10,7 @@ def call_openmp(valueArgs):
     subprocess.call(comando, shell=True)
 
 def call_apache(valueArgs):
-    print("Chamando código do Apache e Spark")
+    print("Chamando código do Apache e Spark\n\n")
     comando = f"python3 ./jogo_vida.py {valueArgs['powmin']} {valueArgs['powmax']}"
     subprocess.call(comando, shell=True)
 
@@ -37,10 +37,9 @@ def handle_client(client_socket, address):
         openmp_thread.join()
         apache_thread.join()
 
-        # Calcular a soma
+        print("\n\nEsperando cliente!!!!!!!!\n\n")
         sum_result = powmin + powmax
 
-        # Enviar a soma de volta para o cliente
         response = f"Soma: {sum_result}"
         client_socket.send(response.encode())
 

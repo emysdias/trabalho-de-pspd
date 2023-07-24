@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <mpi.h>
-#include <curl/curl.h> // Inclua a biblioteca libcurl
+#include <curl/curl.h>
 
 #define ind2d(i, j) (i) * (tam + 2) + j
 
@@ -66,7 +66,6 @@ int Correto(int *tabul, int tam)
           tabul[ind2d(tam, tam - 1)] && tabul[ind2d(tam, tam)]);
 }
 
-// Função para enviar os dados para o Elasticsearch usando libcurl
 void send_to_elasticsearch(int tam, double t0, double t1, double t2, double t3)
 {
   CURL *curl;
@@ -81,7 +80,7 @@ void send_to_elasticsearch(int tam, double t0, double t1, double t2, double t3)
   char json_data[1000];
   snprintf(json_data, sizeof(json_data), "{\"tam_mpi\": %d, \"init_mpi\": %f, \"comp_mpi\": %f, \"fim_mpi\": %f, \"tot_mpi\": %f}",
            tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0);
-  
+
   curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
 
@@ -91,14 +90,11 @@ void send_to_elasticsearch(int tam, double t0, double t1, double t2, double t3)
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_data);
 
-    // Desabilita a verificação do certificado SSL e verificação do nome do host (NÃO RECOMENDADO para produção)
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
-    // Define o usuário e a senha para autenticação
     curl_easy_setopt(curl, CURLOPT_USERPWD, "elastic:Y6pK7W4r33F7R0rWd3B4ZZ9Z");
 
-    // Define o método HTTP como PUT
     // curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
     res = curl_easy_perform(curl);
@@ -107,6 +103,7 @@ void send_to_elasticsearch(int tam, double t0, double t1, double t2, double t3)
       fprintf(stderr, "Erro ao enviar os dados para o Elasticsearch: %s\n", curl_easy_strerror(res));
     }
 
+    printf("\n\n");
     curl_easy_cleanup(curl);
   }
 
@@ -139,12 +136,10 @@ int main(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  // para todos os tamanhos do tabuleiro
   for (pow = powmin; pow <= powmax; pow++)
   {
     tam = 1 << pow;
 
-    // aloca e inicializa tabuleiros
     t0 = wall_time();
     tabulIn = (int *)malloc((tam + 2) * (tam + 2) * sizeof(int));
     tabulOut = (int *)malloc((tam + 2) * (tam + 2) * sizeof(int));
@@ -173,10 +168,9 @@ int main(int argc, char **argv)
 
     t3 = wall_time();
 
-    printf("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f \n",
+    printf("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f \n\n\n",
            tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0);
 
-    // Envio de dados para o Elasticsearch
     send_to_elasticsearch(tam, t0, t1, t2, t3);
 
     free(tabulIn);
