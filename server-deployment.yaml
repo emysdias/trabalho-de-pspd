@@ -1,0 +1,21 @@
+# server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+      - name: server
+        image: your-docker-image-for-server:latest  # Replace with the actual image name for the server
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080  # Adjust the port if necessary

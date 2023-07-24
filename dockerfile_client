@@ -1,0 +1,14 @@
+# Use uma imagem base que tenha um compilador C disponível
+FROM gcc:latest
+
+# Defina o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copie o código-fonte do cliente para o contêiner
+COPY client.c .
+
+# Compile o código do cliente
+RUN gcc -o client client.c
+
+# Comando padrão para executar o cliente (outra forma de executá-lo é especificar o binário diretamente em 'kubectl run')
+CMD ["./client"]
