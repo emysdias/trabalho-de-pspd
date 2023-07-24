@@ -1,4 +1,4 @@
-# trabalho-de-pspd
+# Trabalho de pspd
 
 O objetivo deste projeto é construir uma aplicação que atenda aos requisitos de performance e elasticidade
 para que ela possa se comportar como uma aplicação de larga escala (large-scale application).
