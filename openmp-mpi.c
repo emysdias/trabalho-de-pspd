@@ -73,15 +73,15 @@ void send_to_elasticsearch(int tam, double t0, double t1, double t2, double t3)
   CURLcode res;
 
   char url[1000];
-  snprintf(url, sizeof(url), "https://localhost:9200/resultado-jogo-vida/_doc/1");
+  snprintf(url, sizeof(url), "https://localhost:9200/resultado-jogo-vida/_doc");
 
   struct curl_slist *headers = NULL;
   headers = curl_slist_append(headers, "Content-Type: application/json");
 
   char json_data[1000];
-  snprintf(json_data, sizeof(json_data), "{\"arroz\": %d, \"init_mpi\": %f, \"comp_mpi\": %f, \"fim_mpi\": %f, \"tot_mpi\": %f}",
+  snprintf(json_data, sizeof(json_data), "{\"tam_mpi\": %d, \"init_mpi\": %f, \"comp_mpi\": %f, \"fim_mpi\": %f, \"tot_mpi\": %f}",
            tam, t1 - t0, t2 - t1, t3 - t2, t3 - t0);
-
+  
   curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
 
