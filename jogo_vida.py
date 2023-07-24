@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print(f"Inteiros recebidos no Apache: {powmin} e {powmax}")
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    # es = Elasticsearch(["https://localhost:9200"], basic_auth=('elastic', 'Y6pK7W4r33F7R0rWd3B4ZZ9Z'), verify_certs=False)
+    es = Elasticsearch(["https://localhost:9200"], basic_auth=('elastic', 'Y6pK7W4r33F7R0rWd3B4ZZ9Z'), verify_certs=False)
 
     for pow in range(powmin, powmax + 1):
         tam = 1 << pow
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
         # Index data to Elasticsearch
         index_name = "resultado-jogo-vida"  # Change this to a suitable index name
-        # index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0)
+        index_to_elasticsearch(es, index_name, tam, t1, t2, t3, t0)
 
         print("----------------------RESULTADO---------------------------")
         print("tam=%d; tempos: init=%7.7f, comp=%7.7f, fim=%7.7f, tot=%7.7f" %
